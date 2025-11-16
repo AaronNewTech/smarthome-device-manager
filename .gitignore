@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+env/
+venv/
+server/venv/
+
+# SQLite instance and local environment
+instance/
+client/.env
+
+# macOS
+.DS_Store
+
+# Editor directories
+.vscode/
+.idea/
+
+# Node
+client/node_modules/
+client/build/
+
+# Logs
+*.log
+.git.bak*/
+client/.git.bak*/
