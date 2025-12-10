@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
+import useDeviceLogs, { DeviceLog } from '../hooks/GetDeviceLogs';
 
 interface ApiDevice {
   id: number;
@@ -20,14 +21,17 @@ const DeviceDetail: React.FC = () => {
   const [device, setDevice] = useState<ApiDevice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { deviceLogs, loading: logsLoading, error: logsError } = useDeviceLogs(id);
 
   useEffect(() => {
+    
     const fetchDevice = async () => {
       if (!id) return;
       try {
         const base = process.env.REACT_APP_API_BASE_URL || '';
-        const res = await axios.get<ApiDevice>(`${base}/api/devices/${id}`);
+        const res = await axios.get<ApiDevice>(`${base}/api/v1/devices/${id}`);
         setDevice(res.data);
+
       } catch (err: any) {
         setError(
           err?.response?.data?.error || err.message || 'Failed to fetch device',
@@ -37,6 +41,7 @@ const DeviceDetail: React.FC = () => {
       }
     };
     fetchDevice();
+    
   }, [id]);
 
   if (loading) return <p>Loading device...</p>;
@@ -55,6 +60,14 @@ const DeviceDetail: React.FC = () => {
       <p>MAC: {device.mac_address ?? '—'}</p>
       <p>Room: {device.room?.name ?? '—'}</p>
       <p>Category: {device.category?.name ?? '—'}</p>
+      <h2>Device Logs</h2>
+      <ul>
+        {logsLoading && <li>Loading logs…</li>}
+        {logsError && <li style={{ color: 'salmon' }}>{logsError}</li>}
+        {deviceLogs.map((log: DeviceLog) => (
+          <li key={log.id}>{log.action} - {log.old_value ?? '—'} to {log.new_value ?? '—'} at {log.timestamp ?? '—'}</li>
+        ))}
+      </ul>
     </div>
   );
 };

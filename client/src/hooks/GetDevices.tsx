@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 
-// Matches the raw API shape returned by the Flask backend
+// Matches the raw API shape returned by the Django backend
 interface ApiDevice {
   id: number;
   name: string;
@@ -19,7 +19,7 @@ interface ApiDevice {
 export interface Device {
   id: number;
   name: string;
-  type: string; // maps from device_type
+  type: string;
   status: string;
   roomName?: string | null;
 }
@@ -34,8 +34,13 @@ const GetDevices = () => {
       try {
         // If your React dev server runs on a different port, set REACT_APP_API_BASE_URL
         // (e.g. http://localhost:5000) or configure a proxy in package.json
-        const base = process.env.REACT_APP_API_BASE_URL || '';
-        const response = await axios.get<ApiDevice[]>(`${base}/api/devices`);
+        // Ensure base has no trailing slash, then request the API with a trailing slash
+        const rawBase = process.env.REACT_APP_API_BASE_URL || '';
+        const base = rawBase.replace(/\/$/, '');
+        console.log('Fetching devices from API at', `${base}/api/v1/devices/`);
+        const response = await axios.get<ApiDevice[]>(
+          `${base}/api/v1/devices/`,
+        );
 
         // Map API shape to the simplified UI shape (keeps TS types correct)
         const mapped: Device[] = response.data.map((d) => ({
@@ -45,7 +50,7 @@ const GetDevices = () => {
           status: d.status,
           roomName: d.room?.name ?? null,
         }));
-
+        // console.log(mapped)
         setDevices(mapped);
       } catch (err: any) {
         // capture server error message when available
