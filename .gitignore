@@ -27,3 +27,6 @@ client/build/
 *.log
 .git.bak*/
 client/.git.bak*/
+
+.env
+db.sqlite3
